@@ -127,7 +127,11 @@ int main(int argc, char **argv)
 void LoadImages(const string &strPathToSequence, vector<string> &vstrImageFilenames, vector<double> &vTimestamps)
 {
     ifstream fTimes;
-    string strPathTimeFile = strPathToSequence + "/times.txt";
+    // DEBUG
+    // KITTI dataset
+    // string strPathTimeFile = strPathToSequence + "/times.txt";
+    // sts dataset
+    string strPathTimeFile = strPathToSequence + "/timestamps.txt";
     fTimes.open(strPathTimeFile.c_str());
     while(!fTimes.eof())
     {
@@ -143,7 +147,12 @@ void LoadImages(const string &strPathToSequence, vector<string> &vstrImageFilena
         }
     }
 
-    string strPrefixLeft = strPathToSequence + "/image_0/";
+    // DEBUG
+    // string strPrefixLeft = strPathToSequence + "/image_0/";
+    // KITTI dataset
+    // string strPrefixLeft = strPathToSequence + "/image_2/";
+    // sts dataset
+    string strPrefixLeft = strPathToSequence + "/images/";
 
     const int nTimes = vTimestamps.size();
     vstrImageFilenames.resize(nTimes);
@@ -152,6 +161,10 @@ void LoadImages(const string &strPathToSequence, vector<string> &vstrImageFilena
     {
         stringstream ss;
         ss << setfill('0') << setw(6) << i;
-        vstrImageFilenames[i] = strPrefixLeft + ss.str() + ".png";
+    	// DEBUG
+    	// KITTI dataset
+        // vstrImageFilenames[i] = strPrefixLeft + ss.str() + ".png";
+    	// sts dataset
+        vstrImageFilenames[i] = strPrefixLeft + ss.str() + ".jpg";
     }
 }
