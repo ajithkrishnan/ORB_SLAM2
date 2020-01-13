@@ -160,7 +160,11 @@ void LoadImages(const string &strPathToSequence, vector<string> &vstrImageFilena
     for(int i=0; i<nTimes; i++)
     {
         stringstream ss;
-        ss << setfill('0') << setw(6) << i;
+    	// DEBUG
+    	// KITTI dataset
+        //ss << setfill('0') << setw(6) << i;
+    	// sts dataset
+        ss << setfill('0') << setw(10) << i;
     	// DEBUG
     	// KITTI dataset
         // vstrImageFilenames[i] = strPrefixLeft + ss.str() + ".png";
