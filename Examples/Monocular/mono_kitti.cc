@@ -71,6 +71,11 @@ vector<string> glob(const string& pattern) {
     return filenames;
 }
 
+bool IsPathExist(const std::string &s)
+{
+  struct stat buffer;
+  return (stat (s.c_str(), &buffer) == 0);
+}
 
 int main(int argc, char **argv)
 {
@@ -96,6 +101,9 @@ int main(int argc, char **argv)
 
     for(int i=0; i<bagSequences.size(); i++)
     {
+
+	// DEBUG
+	// bagSequences[i] = "/share/projects/2019_kss_personal_jupyter_notebooks/trn_ak/sts_odom_dataset/paketzentrum_eifeltor/sequences/2019-05-13-13-54-41_hmm";
 
 	cout << "Retrieving images from " << bagSequences[i] << endl;
 	
@@ -180,22 +188,27 @@ int main(int argc, char **argv)
 	// Save camera trajectory
 	// SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");    
 
-	string bagPath = bagSequences[i];
-	string bagKey = bagPath.substr(bagPath.find("sequences")+10);
+//	string bagPath = bagSequences[i];
+	string bagKey = bagSequences[i].substr(bagSequences[i].find("sequences")+10);
 // 	const char* cstr = str.c_str();
 	// cout << bagKey << endl;
 	string posePath = "/home/users/trn_ak/git_clones/orb_slam2/" + bagKey; 
 	const char* cPosePath = posePath.c_str();
+	const string keyFrameFile = posePath + "/KeyFrameTrajectory.txt"; 
 
+	cout << cPosePath << endl;
+	cout << keyFrameFile << endl;
         // const int dir_err = mkdir("foo", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-        const int dir_err = mkdir(cPosePath, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-	if (dir_err == -1)
+        // const int dir_err = mkdir(cPosePath, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	if (!IsPathExist(posePath))
 	{
-	    cout << "Error creating directory!" << endl;
-	    return 1;
-    	}
-    
-	const string keyFrameFile = posePath + "KeyFrameTrajectory.txt"; 
+	    const int dir_err = mkdir(cPosePath, 0777);
+	    if (dir_err == -1)
+	    {
+	        cout << "Error creating directory!" << endl;
+	        return 1;
+    	    }
+   	} 
 	// SLAM.SaveKeyFrameTrajectoryTUM("/home/users/trn_ak/git_clones/KeyFrameTrajectory.txt");    
 	SLAM.SaveKeyFrameTrajectoryTUM(keyFrameFile);    
 
