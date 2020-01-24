@@ -29,97 +29,194 @@
 
 #include"System.h"
 
+#include <glob.h> // glob(), globfree()
+#include <string.h> // memset()
+#include <vector>
+#include <stdexcept>
+#include <string>
+#include <sstream>
+
+#include <sys/stat.h>
+
 using namespace std;
 
 void LoadImages(const string &strSequence, vector<string> &vstrImageFilenames,
                 vector<double> &vTimestamps);
 
+vector<string> glob(const string& pattern) {
+
+    // glob struct resides on the stack
+    glob_t glob_result;
+    memset(&glob_result, 0, sizeof(glob_result));
+
+    // do the glob operation
+    int return_value = glob(pattern.c_str(), GLOB_TILDE, NULL, &glob_result);
+    if(return_value != 0) {
+        globfree(&glob_result);
+        stringstream ss;
+        ss << "glob() failed with return_value " << return_value << endl;
+        throw std::runtime_error(ss.str());
+    }
+
+    // collect all the filenames into a std::list<std::string>
+    vector<string> filenames;
+    for(size_t i = 0; i < glob_result.gl_pathc; ++i) {
+        filenames.push_back(string(glob_result.gl_pathv[i]));
+    }
+
+    // cleanup
+    globfree(&glob_result);
+
+    // done
+    return filenames;
+}
+
+bool IsPathExist(const std::string &s)
+{
+  struct stat buffer;
+  return (stat (s.c_str(), &buffer) == 0);
+}
+
 int main(int argc, char **argv)
 {
+
+    // const string path = "/home/users/trn_ak/*";
+    // vector<string> filenames = glob(path);
+
+/**
     if(argc != 4)
     {
         cerr << endl << "Usage: ./mono_kitti path_to_vocabulary path_to_settings path_to_sequence" << endl;
         return 1;
     }
+**/
 
-    // Retrieve paths to images
-    vector<string> vstrImageFilenames;
-    vector<double> vTimestamps;
-    LoadImages(string(argv[3]), vstrImageFilenames, vTimestamps);
+    // const string sequenceDir = argv[3] + "/*";
+    // const string sequenceDir;
+    // vector<string> bagSequences = glob(sequenceDir);
 
-    int nImages = vstrImageFilenames.size();
+    
 
-    // Create SLAM system. It initializes all system threads and gets ready to process frames.
-    ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::MONOCULAR,true);
+    vector<string> bagSequences = glob(argv[3]);
 
-    // Vector for tracking time statistics
-    vector<float> vTimesTrack;
-    vTimesTrack.resize(nImages);
-
-    cout << endl << "-------" << endl;
-    cout << "Start processing sequence ..." << endl;
-    cout << "Images in the sequence: " << nImages << endl << endl;
-
-    // Main loop
-    cv::Mat im;
-    for(int ni=0; ni<nImages; ni++)
+    for(int i=0; i<bagSequences.size(); i++)
     {
-        // Read image from file
-        im = cv::imread(vstrImageFilenames[ni],CV_LOAD_IMAGE_UNCHANGED);
-        double tframe = vTimestamps[ni];
 
-        if(im.empty())
-        {
-            cerr << endl << "Failed to load image at: " << vstrImageFilenames[ni] << endl;
-            return 1;
-        }
+	// DEBUG
+	// bagSequences[i] = "/share/projects/2019_kss_personal_jupyter_notebooks/trn_ak/sts_odom_dataset/paketzentrum_eifeltor/sequences/2019-05-13-13-54-41_hmm";
 
-#ifdef COMPILEDWITHC11
-        std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
-#else
-        std::chrono::monotonic_clock::time_point t1 = std::chrono::monotonic_clock::now();
-#endif
+	cout << "Retrieving images from " << bagSequences[i] << endl;
+	
 
-        // Pass the image to the SLAM system
-        SLAM.TrackMonocular(im,tframe);
 
-#ifdef COMPILEDWITHC11
-        std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
-#else
-        std::chrono::monotonic_clock::time_point t2 = std::chrono::monotonic_clock::now();
-#endif
+	// Retrieve paths to images
+	vector<string> vstrImageFilenames;
+	vector<double> vTimestamps;
+	LoadImages(string(argv[3]), vstrImageFilenames, vTimestamps);
 
-        double ttrack= std::chrono::duration_cast<std::chrono::duration<double> >(t2 - t1).count();
+	int nImages = vstrImageFilenames.size();
 
-        vTimesTrack[ni]=ttrack;
+	// Create SLAM system. It initializes all system threads and gets ready to process frames.
+	ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::MONOCULAR,true);
 
-        // Wait to load the next frame
-        double T=0;
-        if(ni<nImages-1)
-            T = vTimestamps[ni+1]-tframe;
-        else if(ni>0)
-            T = tframe-vTimestamps[ni-1];
+	// Vector for tracking time statistics
+	vector<float> vTimesTrack;
+	vTimesTrack.resize(nImages);
 
-        if(ttrack<T)
-            usleep((T-ttrack)*1e6);
-    }
+	cout << endl << "-------" << endl;
+	cout << "Start processing sequence ..." << endl;
+	cout << "Images in the sequence: " << nImages << endl << endl;
 
-    // Stop all threads
-    SLAM.Shutdown();
+	// Main loop
+	cv::Mat im;
+	for(int ni=0; ni<nImages; ni++)
+	{
+		// Read image from file
+		im = cv::imread(vstrImageFilenames[ni],CV_LOAD_IMAGE_UNCHANGED);
+		double tframe = vTimestamps[ni];
 
-    // Tracking time statistics
-    sort(vTimesTrack.begin(),vTimesTrack.end());
-    float totaltime = 0;
-    for(int ni=0; ni<nImages; ni++)
-    {
-        totaltime+=vTimesTrack[ni];
-    }
-    cout << "-------" << endl << endl;
-    cout << "median tracking time: " << vTimesTrack[nImages/2] << endl;
-    cout << "mean tracking time: " << totaltime/nImages << endl;
+		if(im.empty())
+		{
+		    cerr << endl << "Failed to load image at: " << vstrImageFilenames[ni] << endl;
+		    return 1;
+		}
 
-    // Save camera trajectory
-    SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");    
+		#ifdef COMPILEDWITHC11
+		std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
+		#else
+		std::chrono::monotonic_clock::time_point t1 = std::chrono::monotonic_clock::now();
+		#endif
+
+		// Pass the image to the SLAM system
+		SLAM.TrackMonocular(im,tframe);
+
+		#ifdef COMPILEDWITHC11
+		std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
+		#else
+		std::chrono::monotonic_clock::time_point t2 = std::chrono::monotonic_clock::now();
+		#endif
+
+		double ttrack= std::chrono::duration_cast<std::chrono::duration<double> >(t2 - t1).count();
+
+		vTimesTrack[ni]=ttrack;
+
+		// Wait to load the next frame
+		double T=0;
+		if(ni<nImages-1)
+		    T = vTimestamps[ni+1]-tframe;
+		else if(ni>0)
+		    T = tframe-vTimestamps[ni-1];
+
+		if(ttrack<T)
+		    usleep((T-ttrack)*1e6);
+	}
+
+	// Stop all threads
+	SLAM.Shutdown();
+
+	// Tracking time statistics
+	sort(vTimesTrack.begin(),vTimesTrack.end());
+	float totaltime = 0;
+	for(int ni=0; ni<nImages; ni++)
+	{
+		totaltime+=vTimesTrack[ni];
+	}
+	cout << "-------" << endl << endl;
+	cout << "median tracking time: " << vTimesTrack[nImages/2] << endl;
+	cout << "mean tracking time: " << totaltime/nImages << endl;
+
+	// Save camera trajectory
+	// SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");    
+
+//	string bagPath = bagSequences[i];
+	string bagKey = bagSequences[i].substr(bagSequences[i].find("sequences")+10);
+// 	const char* cstr = str.c_str();
+	// cout << bagKey << endl;
+	string posePath = "/home/users/trn_ak/git_clones/orb_slam2/" + bagKey; 
+	const char* cPosePath = posePath.c_str();
+	const string keyFrameFile = posePath + "/KeyFrameTrajectory.txt"; 
+
+	cout << cPosePath << endl;
+	cout << keyFrameFile << endl;
+        // const int dir_err = mkdir("foo", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+        // const int dir_err = mkdir(cPosePath, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	if (!IsPathExist(posePath))
+	{
+	    const int dir_err = mkdir(cPosePath, 0777);
+	    if (dir_err == -1)
+	    {
+	        cout << "Error creating directory!" << endl;
+	        return 1;
+    	    }
+   	} 
+	// SLAM.SaveKeyFrameTrajectoryTUM("/home/users/trn_ak/git_clones/KeyFrameTrajectory.txt");    
+	SLAM.SaveKeyFrameTrajectoryTUM(keyFrameFile);    
+
+	return 0;
+
+    }    
+
+
 
     return 0;
 }
