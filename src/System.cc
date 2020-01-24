@@ -94,7 +94,6 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     mpLoopCloser = new LoopClosing(mpMap, mpKeyFrameDatabase, mpVocabulary, mSensor!=MONOCULAR);
     mptLoopClosing = new thread(&ORB_SLAM2::LoopClosing::Run, mpLoopCloser);
 
-/**
     //Initialize the Viewer thread and launch
     if(bUseViewer)
     {
@@ -102,7 +101,6 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
         mptViewer = new thread(&Viewer::Run, mpViewer);
         mpTracker->SetViewer(mpViewer);
     }
-**/
 
     //Set pointers between threads
     mpTracker->SetLocalMapper(mpLocalMapper);
