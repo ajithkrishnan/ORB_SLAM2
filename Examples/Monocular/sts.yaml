@@ -4,19 +4,50 @@
 # Camera Parameters. Adjust them!
 #--------------------------------------------------------------------------------------------
 
-# Camera calibration and distortion parameters (OpenCV) 
-Camera.fx: 950.0
-Camera.fy: 950.0
-Camera.cx: 940.0
-Camera.cy: 674.0
 
-Camera.k1: 0.0
-Camera.k2: 0.0
-Camera.p1: 0.0
-Camera.p2: 0.0
+# Camera calibration and distortion parameters (OpenCV) 
+#Camera.fx: 950.0
+#Camera.fy: 950.0
+#Camera.cx: 940.0
+#Camera.cy: 674.0
+
+#Camera.k1: 0.0
+#Camera.k2: 0.0
+#Camera.k3: 0.0
+#Camera.p1: 0.0
+#Camera.p2: 0.0
+
+# NEW PARAMS - doesn't detect features
+
+#Camera.fx: 961.6529010017698 
+#Camera.fy: 961.6529010017698
+#Camera.cx: 960.0
+#Camera.cy: 604.0
+
+#Camera.k1: -0.2333673392878228 
+#Camera.k2: -0.16548014782838416 
+#Camera.k3: 0.008614249667348316 
+#Camera.p1: 0.0
+#Camera.p2: 0.0
+
+# OLD PARAMS
+
+Camera.fx: 1017.952574
+Camera.fy: 1018.405365
+Camera.cx: 974.950824
+Camera.cy: 606.729175
+
+Camera.k1: -0.267676
+Camera.k2: 0.049378
+Camera.k3: 0.0
+Camera.p1: -0.000165
+Camera.p2: 0.000211
+
 
 # Camera frames per second 
 Camera.fps: 30.0
+Camera.rows: 1208
+Camera.cols: 1920
 
 # Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)
 Camera.RGB: 1
@@ -26,7 +57,7 @@ Camera.RGB: 1
 #--------------------------------------------------------------------------------------------
 
 # ORB Extractor: Number of features per image
-ORBextractor.nFeatures: 1000
+ORBextractor.nFeatures: 3000
 
 # ORB Extractor: Scale factor between levels in the scale pyramid 	
 ORBextractor.scaleFactor: 1.2
