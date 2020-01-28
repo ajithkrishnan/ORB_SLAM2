@@ -117,7 +117,8 @@ int main(int argc, char **argv)
 	int nImages = vstrImageFilenames.size();
 
 	// Create SLAM system. It initializes all system threads and gets ready to process frames.
-	ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::MONOCULAR,true);
+//	ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::MONOCULAR,true);
+	ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::MONOCULAR,false);
 
 	// Vector for tracking time statistics
 	vector<float> vTimesTrack;
@@ -191,8 +192,11 @@ int main(int argc, char **argv)
 //	string bagPath = bagSequences[i];
 	string bagKey = bagSequences[i].substr(bagSequences[i].find("sequences")+10);
 // 	const char* cstr = str.c_str();
-	// cout << bagKey << endl;
-	string posePath = "/home/users/trn_ak/git_clones/orb_slam2/" + bagKey; 
+
+//	string posePath = "/home/users/trn_ak/git_clones/orb_slam2/" + bagKey; 
+	string posePath = "/home/users/trn_ak/orb_slam2_docker/orb_slam2_output/" + bagKey; 
+
+
 	const char* cPosePath = posePath.c_str();
 	const string keyFrameFile = posePath + "/KeyFrameTrajectory.txt"; 
 
