@@ -117,8 +117,8 @@ int main(int argc, char **argv)
 	int nImages = vstrImageFilenames.size();
 
 	// Create SLAM system. It initializes all system threads and gets ready to process frames.
-	ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::MONOCULAR,true);
-//	ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::MONOCULAR,false);
+//	ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::MONOCULAR,true);
+	ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::MONOCULAR,false);
 
 	// Vector for tracking time statistics
 	vector<float> vTimesTrack;
@@ -190,18 +190,18 @@ int main(int argc, char **argv)
 	// SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");    
 
 //	string bagPath = bagSequences[i];
-	string bagKey = bagSequences[i].substr(bagSequences[i].find("sequences")+10);
+//	string bagKey = bagSequences[i].substr(bagSequences[i].find("sequences")+10);
+	string bagKey = bagSequences[i].substr(bagSequences[i].find("eval_bags")+9);
 // 	const char* cstr = str.c_str();
 
 //	string posePath = "/home/users/trn_ak/git_clones/orb_slam2/" + bagKey; 
-	string posePath = "/home/users/trn_ak/orb_slam2_docker/orb_slam2_output/" + bagKey; 
+	string posePath = "/home/users/trn_ak/orb_slam2_docker/orb_slam2_output" + bagKey; 
 
 
 	const char* cPosePath = posePath.c_str();
 	const string keyFrameFile = posePath + "/KeyFrameTrajectory.txt"; 
 
-	cout << cPosePath << endl;
-	cout << keyFrameFile << endl;
+	cout << "Keyframe file: " << keyFrameFile << endl;
         // const int dir_err = mkdir("foo", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
         // const int dir_err = mkdir(cPosePath, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 	if (!IsPathExist(posePath))
@@ -216,7 +216,10 @@ int main(int argc, char **argv)
 	// SLAM.SaveKeyFrameTrajectoryTUM("/home/users/trn_ak/git_clones/KeyFrameTrajectory.txt");    
 	SLAM.SaveKeyFrameTrajectoryTUM(keyFrameFile);    
 
-	return 0;
+	// break
+	//return 0;
+
+	cout << "here" << endl;
 
     }    
 
