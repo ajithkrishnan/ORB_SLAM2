@@ -43,33 +43,33 @@ using namespace std;
 void LoadImages(const string &strSequence, vector<string> &vstrImageFilenames,
                 vector<double> &vTimestamps);
 
-vector<string> glob(const string& pattern) {
-
-    // glob struct resides on the stack
-    glob_t glob_result;
-    memset(&glob_result, 0, sizeof(glob_result));
-
-    // do the glob operation
-    int return_value = glob(pattern.c_str(), GLOB_TILDE, NULL, &glob_result);
-    if(return_value != 0) {
-        globfree(&glob_result);
-        stringstream ss;
-        ss << "glob() failed with return_value " << return_value << endl;
-        throw std::runtime_error(ss.str());
-    }
-
-    // collect all the filenames into a std::list<std::string>
-    vector<string> filenames;
-    for(size_t i = 0; i < glob_result.gl_pathc; ++i) {
-        filenames.push_back(string(glob_result.gl_pathv[i]));
-    }
-
-    // cleanup
-    globfree(&glob_result);
-
-    // done
-    return filenames;
-}
+// vector<string> glob(const string& pattern) {
+// 
+//     // glob struct resides on the stack
+//     glob_t glob_result;
+//     memset(&glob_result, 0, sizeof(glob_result));
+// 
+//     // do the glob operation
+//     int return_value = glob(pattern.c_str(), GLOB_TILDE, NULL, &glob_result);
+//     if(return_value != 0) {
+//         globfree(&glob_result);
+//         stringstream ss;
+//         ss << "glob() failed with return_value " << return_value << endl;
+//         throw std::runtime_error(ss.str());
+//     }
+// 
+//     // collect all the filenames into a std::list<std::string>
+//     vector<string> filenames;
+//     for(size_t i = 0; i < glob_result.gl_pathc; ++i) {
+//         filenames.push_back(string(glob_result.gl_pathv[i]));
+//     }
+// 
+//     // cleanup
+//     globfree(&glob_result);
+// 
+//     // done
+//     return filenames;
+// }
 
 bool IsPathExist(const std::string &s)
 {
@@ -96,16 +96,22 @@ int main(int argc, char **argv)
     // vector<string> bagSequences = glob(sequenceDir);
 
     
+//     vector<string> bagSequences = glob(argv[3]);
+//     cout << bagSequences.size() << endl;
+//     for(int i=0; i<bagSequences.size(); i++)
+//     {
+// 	cout << bagSequences[i] << endl;
+//     }
+// 
+//     return 0;
 
-    vector<string> bagSequences = glob(argv[3]);
-
-    for(int i=0; i<bagSequences.size(); i++)
-    {
+//    for(int i=0; i<bagSequences.size(); i++)
+//    {
 
 	// DEBUG
 	// bagSequences[i] = "/share/projects/2019_kss_personal_jupyter_notebooks/trn_ak/sts_odom_dataset/paketzentrum_eifeltor/sequences/2019-05-13-13-54-41_hmm";
 
-	cout << "Retrieving images from " << bagSequences[i] << endl;
+	// cout << "Retrieving images from " << bagSequences[i] << endl;
 	
 
 
@@ -113,6 +119,7 @@ int main(int argc, char **argv)
 	vector<string> vstrImageFilenames;
 	vector<double> vTimestamps;
 	LoadImages(string(argv[3]), vstrImageFilenames, vTimestamps);
+//	LoadImages(string(bagSequences[i]), vstrImageFilenames, vTimestamps);
 
 	int nImages = vstrImageFilenames.size();
 
@@ -191,7 +198,8 @@ int main(int argc, char **argv)
 
 //	string bagPath = bagSequences[i];
 //	string bagKey = bagSequences[i].substr(bagSequences[i].find("sequences")+10);
-	string bagKey = bagSequences[i].substr(bagSequences[i].find("eval_bags")+9);
+	//string bagKey = bagSequences[i].substr(bagSequences[i].find("eval_bags")+9);
+	string bagKey = string(argv[3]).substr(string(argv[3]).find("eval_bags")+9);
 // 	const char* cstr = str.c_str();
 
 //	string posePath = "/home/users/trn_ak/git_clones/orb_slam2/" + bagKey; 
@@ -221,7 +229,7 @@ int main(int argc, char **argv)
 
 	cout << "here" << endl;
 
-    }    
+//    }    
 
 
 
